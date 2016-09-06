@@ -1,18 +1,25 @@
 /*
-リポジトリのルートで
-go run addtree.go
-./tree.txtの内容をREADME.mdに追加する
+./tree.txtの内容を./README.mdに追加する
+
+`go run addtree.go`
+
+または、バイナリがあれば
+
+`addtree`
+
 追加位置はREADME.md内の以下の部分
 
 ```txt:./tree.txt
+
 <追加位置>
+
 ```
 
-README.md内に
-```txt:./tree.txt
-が見つからなければ書き込まない
+README.md内に文字列 ```txt:./tree.txt が見つからなければ書き込まない
+
 追加位置にある文字列は上書きされる
 */
+package main
 
 /* TODO LIST */
 // DONE:カレントディレクトリからREADME.mdを掴んでbufferを作る
@@ -33,7 +40,6 @@ README.md内に
 
 // DONE:新しいbufferをREADME.mdにテキストで出力する
 
-package main
 
 import (
 	"bufio"
