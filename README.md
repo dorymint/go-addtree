@@ -36,10 +36,9 @@ $ rm ./tree.txt
 2. adding tree text tag your README.md  
 tree text tag is this 2line  
 ````
-```txt:./tree.txt
-```
-
-````
+ ```txt:./tree.txt
+ ```
+```````
 
 3. use `tree`. generate tree.txt
 4. after `addtree`. "tree.txt" is added between tree text tag
