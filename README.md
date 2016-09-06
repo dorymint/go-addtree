@@ -35,10 +35,12 @@ $ rm ./tree.txt
 1. change current directory to your repository root
 2. adding tree text tag your README.md  
 tree text tag is this 2line  
-\`\`\`txt:./tree.text  
-\`\`\`
+~~~
+```txt:./tree.txt
+```
+~~~  
 
-3. use `tree`. generate tree.text
+3. use `tree`. generate tree.txt
 4. after `addtree`. "tree.txt" is added between tree text tag
 
 ## Licence
