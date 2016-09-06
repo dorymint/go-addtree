@@ -1,0 +1,8 @@
+./
+├── LICENSE
+├── README.md
+├── addtree
+│   └── addtree.go
+└── tree.txt
+
+1 directory, 4 files
