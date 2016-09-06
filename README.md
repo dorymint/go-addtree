@@ -37,8 +37,10 @@ $ rm ./tree.txt
 tree text tag is this 2line  
 ~~~
 ```txt:./tree.txt
-```
 ~~~  
+~~~
+```
+~~~
 
 3. use `tree`. generate tree.txt
 4. after `addtree`. "tree.txt" is added between tree text tag
