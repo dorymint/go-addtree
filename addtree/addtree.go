@@ -72,7 +72,7 @@ type treeBlock struct {
 	in, exit           bool
 }
 
-// block開始位置の判定と行番号を記録
+// block開始位置の判定と行番号の記録
 func (b *treeBlock) setBeginLine(s string, line int) {
 	if b.in {
 		return
@@ -83,7 +83,7 @@ func (b *treeBlock) setBeginLine(s string, line int) {
 	}
 }
 
-// block終了位置の判定と行番号を記録
+// block終了位置の判定と行番号の記録
 func (b *treeBlock) setEndLine(s string, line int) {
 	if b.exit {
 		return
@@ -219,8 +219,6 @@ func ask() bool {
 }
 
 func main() {
-
-	buf := new(buffer)
 
 	bufReadme := make([]string, 2)
 	bufReadme, err := getReadme()
