@@ -168,7 +168,7 @@ func getTree() (string, error) {
 // join buffers
 func joinText(readme []string, tree string) (string, error) {
 	if len(readme) != 2 {
-		return "", fmt.Errorf("joinText(): 'readme' invalid lnegth\n")
+		return "", fmt.Errorf("joinText(): parameter []string is invalid length\n")
 	}
 	str := readme[0]
 	str += fmt.Sprintf("\n%s\n\n", beginBlock)
