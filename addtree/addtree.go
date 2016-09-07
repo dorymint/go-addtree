@@ -40,7 +40,6 @@ package main
 
 // DONE:新しいbufferをREADME.mdにテキストで出力する
 
-
 import (
 	"bufio"
 	"fmt"
@@ -50,49 +49,56 @@ import (
 // default
 const (
 	readme = "./README.md"
-	tree = "./tree.txt"
+	tree   = "./tree.txt"
 
 	beginBlock = "```txt:./tree.txt"
-	endBlock = "```"
+	endBlock   = "```"
 )
 
 type buffer struct {
 	readme, tree []string
-	block treeBlock
+	block        treeBlock
 }
-func (b *buffer) blockBegin() int { return b.block.beginLine }
-func (b *buffer) blockEnd() int { return b.block.endLine }
+
+func (buf *buffer) blockBegin() int { return buf.block.beginLine }
+func (buf *buffer) blockEnd() int   { return buf.block.endLine }
 
 // README.md 内でtreeBlockを見つけていればtrueを返す
-func (b *buffer) existsBlock() bool { return  b.block.in && b.block.exit }
+func (buf *buffer) existsBlock() bool { return buf.block.in && buf.block.exit }
 
 // README.md内のtreeBlockの位置
 type treeBlock struct {
 	beginLine, endLine int
-	in, exit  bool
+	in, exit           bool
 }
-// block開始位置の判定 現状戻り値のboolは使ってない
-func (b *treeBlock) setBegin(s string, line int) bool {
-	if b.in { return false }
+
+// block開始位置の判定と行番号を記録
+func (b *treeBlock) setBeginLine(s string, line int) {
+	if b.in {
+		return
+	}
 	if s == beginBlock {
 		b.in = true
 		b.beginLine = line
-		return true
 	}
-	return false
 }
-// block終了位置の判定 現状戻り値のboolは使ってない
-func (b *treeBlock) setEnd(s string, line int) bool {
-	if b.exit { return false }
+
+// block終了位置の判定と行番号を記録
+func (b *treeBlock) setEndLine(s string, line int) {
+	if b.exit {
+		return
+	}
 	if s == endBlock && b.in {
 		b.endLine = line
 		b.exit = true
-		return true
 	}
-	return false
+}
+func (b *treeBlock) searchBlock(s string, line int) {
+	b.setBeginLine(s, line)
+	b.setEndLine(s, line)
 }
 
-// README.md parse and return string
+// README.md parse and split
 func getReadme() ([]string, error) {
 
 	buf := new(buffer)
@@ -100,8 +106,7 @@ func getReadme() ([]string, error) {
 	// file reamde
 	file, err := os.Open(readme)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "file open error %q\n", err)
-		return nil, err
+		return nil, fmt.Errorf("getReadme(): %q\n", err)
 	}
 	defer file.Close()
 
@@ -109,22 +114,24 @@ func getReadme() ([]string, error) {
 	fmt.Println("Scanning README.md")
 	for sc, i := bufio.NewScanner(file), 0; sc.Scan(); i++ {
 		if err := sc.Err(); err != nil {
-			fmt.Fprintf(os.Stderr, "sc.Scan error %q\n", err)
-			return nil, err
+			return nil, fmt.Errorf("getReadme(): %q\n", err)
 		}
-		buf.block.setBegin(sc.Text(), i)
-		buf.block.setEnd(sc.Text(), i)
+
+		buf.block.searchBlock(sc.Text(), i)
 
 		buf.readme = append(buf.readme, fmt.Sprintln(sc.Text()))
 	}
 	if !buf.existsBlock() {
-		return nil, fmt.Errorf("not find tree Block in README.md")
+		return nil, fmt.Errorf("getReadme(): not find tree block in README.md\n")
 	}
 
 	str := make([]string, 2)
-	for _, s := range buf.readme[:buf.blockBegin()] { str[0] += s }
-	for _, s := range buf.readme[buf.blockEnd()+1:] { str[1] += s }
-
+	for _, s := range buf.readme[:buf.blockBegin()] {
+		str[0] += s
+	}
+	for _, s := range buf.readme[buf.blockEnd()+1:] {
+		str[1] += s
+	}
 	return str, nil
 }
 
@@ -136,60 +143,58 @@ func getTree() (string, error) {
 	// file tree
 	file, err := os.Open(tree)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "getTree() file open error %q\n", err)
-		return "", err
+		return "", fmt.Errorf("getTree(): %q\n", err)
 	}
 	defer file.Close()
 
 	// scanner tree
 	fmt.Println("Scanning tree.txt")
-	for sc := bufio.NewScanner(file) ; sc.Scan(); {
+	for sc := bufio.NewScanner(file); sc.Scan(); {
 		if err := sc.Err(); err != nil {
-			fmt.Fprintf(os.Stderr, "sc.Scan() error %q\n", err)
-			return "", err
+			return "", fmt.Errorf("getTree(): %q\n", err)
 		}
 		buf.tree = append(buf.tree, fmt.Sprintln(sc.Text()))
 	}
 
 	var str string
-	for _, s := range buf.tree { str += s }
+	for _, s := range buf.tree {
+		str += s
+	}
 	return str, nil
 }
 
 // join buffers
-func joinText(readme []string, tree string) string {
+func joinText(readme []string, tree string) (string, error) {
 	if len(readme) != 2 {
-		fmt.Fprintln(os.Stderr, "joinText() readme lnegth over")
-		return ""
+		return "", fmt.Errorf("joinText(): 'readme' invalid lnegth\n")
 	}
 	str := readme[0]
 	str += fmt.Sprintf("\n%s\n\n", beginBlock)
 	str += tree
 	str += fmt.Sprintf("\n%s\n\n", endBlock)
 	str += readme[1]
-	return str
+	return str, nil
 }
 
 // Write Readme
-func writingReadme(s string) {
+func writeReadme(s string) error {
 
 	file, err := os.Create(readme)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		return
+		return fmt.Errorf("writeReadme(): %q\n", err)
 	}
 	defer file.Close()
 
 	w := bufio.NewWriter(file)
 	n, err := w.WriteString(s)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "write error write bytes ", n, err)
-		return
+		return fmt.Errorf("writeReadme(): write bytes=%v\nerror:%q\n", n, err)
 	}
 	if err := w.Flush(); err != nil {
-		fmt.Fprintln(os.Stderr, "Flush error", err)
-		return
+		return fmt.Errorf("writeReadme(): %q\n", err)
 	}
+
+	return nil
 }
 
 // 上書きの確認
@@ -197,15 +202,19 @@ func ask() bool {
 
 	fmt.Println("this string to override at README.md")
 	fmt.Printf("[yes:no]? >>")
-	for sc, i := bufio.NewScanner(os.Stdin), 0;sc.Scan() && i < 2;i++ {
+	for sc, i := bufio.NewScanner(os.Stdin), 0; i < 3 && sc.Scan(); i++ {
 		switch sc.Text() {
-		case "yes": return true
-		case "no": return false
+		case "yes":
+			return true
+		case "no":
+			return false
 		default:
 			fmt.Println(sc.Text())
 			fmt.Printf("[yes:no]? >>")
 		}
 	}
+
+	fmt.Printf("\n\ndon't write ...process exit\n")
 	return false
 }
 
@@ -215,21 +224,29 @@ func main() {
 	bufReadme, err := getReadme()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		return
+		os.Exit(1)
 	}
 
 	bufTree, err := getTree()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		return
+		os.Exit(1)
 	}
 
-	str := joinText(bufReadme, bufTree)
+	str, err := joinText(bufReadme, bufTree)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
 	fmt.Println(str)
 	if !ask() {
-		fmt.Println("don't write ...process exit")
-		return
+		os.Exit(1)
 	}
-	writingReadme(str)
+
+	if err := writeReadme(str); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 }
 
