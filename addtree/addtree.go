@@ -72,7 +72,7 @@ type treeBlock struct {
 	in, exit           bool
 }
 
-// block開始位置の判定と行番号を記録
+// block開始位置の判定と行番号の記録
 func (b *treeBlock) setBeginLine(s string, line int) {
 	if b.in {
 		return
@@ -83,7 +83,7 @@ func (b *treeBlock) setBeginLine(s string, line int) {
 	}
 }
 
-// block終了位置の判定と行番号を記録
+// block終了位置の判定と行番号の記録
 func (b *treeBlock) setEndLine(s string, line int) {
 	if b.exit {
 		return
@@ -103,7 +103,7 @@ func getReadme() ([]string, error) {
 
 	buf := new(buffer)
 
-	// file reamde
+	// file open reamde
 	file, err := os.Open(readme)
 	if err != nil {
 		return nil, fmt.Errorf("getReadme(): %q\n", err)
@@ -125,6 +125,7 @@ func getReadme() ([]string, error) {
 		return nil, fmt.Errorf("getReadme(): not find tree block in README.md\n")
 	}
 
+	// return string
 	str := make([]string, 2)
 	for _, s := range buf.readme[:buf.blockBegin()] {
 		str[0] += s
@@ -135,12 +136,12 @@ func getReadme() ([]string, error) {
 	return str, nil
 }
 
-// return string
+// get tree.txt buffer
 func getTree() (string, error) {
 
 	buf := new(buffer)
 
-	// file tree
+	// file open tree
 	file, err := os.Open(tree)
 	if err != nil {
 		return "", fmt.Errorf("getTree(): %q\n", err)
@@ -156,6 +157,7 @@ func getTree() (string, error) {
 		buf.tree = append(buf.tree, fmt.Sprintln(sc.Text()))
 	}
 
+	// return string
 	var str string
 	for _, s := range buf.tree {
 		str += s
@@ -249,4 +251,3 @@ func main() {
 		os.Exit(1)
 	}
 }
-
