@@ -211,6 +211,8 @@ func ask() bool {
 
 func main() {
 
+	buf := new(buffer)
+
 	bufReadme := make([]string, 2)
 	bufReadme, err := getReadme()
 	if err != nil {
