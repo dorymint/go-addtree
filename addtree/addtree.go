@@ -1,24 +1,21 @@
-/*
-./tree.txtの内容を./README.mdに追加する
-
-`go run addtree.go`
-
-または、バイナリがあれば
-
-`addtree`
-
-追加位置はREADME.md内の以下の部分
-
-```txt:./tree.txt
-
-<追加位置>
-
-```
-
-README.md内に文字列 ```txt:./tree.txt が見つからなければ書き込まない
-
-追加位置にある文字列は上書きされる
-*/
+// ./tree.txtの内容を./README.mdに追加する
+//
+// `go run addtree.go`
+//
+// または、バイナリがあれば
+//
+// `addtree`
+//
+// 追加位置はREADME.md内の以下の部分
+//
+// ```txt:./tree.txt
+//
+// <追加位置>
+//
+// ```
+//
+// README.md内に文字列 ```txt:./tree.txt が見つからなければ書き込まない
+// 追加位置にある文字列は上書きされる
 package main
 
 /* TODO LIST */
