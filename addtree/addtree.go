@@ -175,17 +175,18 @@ func writeReadme(s string) (err error) {
 func ask(str string) {
 	fmt.Println(str)
 	fmt.Println("this string to override at README.md")
-	fmt.Printf("[yes:no]? >>")
+	fmt.Print("[yes:no]? >>")
+
+	L:
 	for sc, i := bufio.NewScanner(os.Stdin), 0; i < 3 && sc.Scan(); i++ {
 		switch sc.Text() {
 		case "yes":
 			return
 		case "no":
-			fmt.Fprintf(os.Stderr, "\n\ndon't write ...process exit\n")
-			os.Exit(1)
+			break L
 		default:
 			fmt.Println(sc.Text())
-			fmt.Printf("[yes:no]? >>")
+			fmt.Print("[yes:no]? >>")
 		}
 	}
 	fmt.Fprintf(os.Stderr, "\n\ndon't write ...process exit\n")
