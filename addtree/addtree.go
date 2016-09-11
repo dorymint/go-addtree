@@ -106,10 +106,10 @@ func getReadme() ([]string, error) {
 
 	// return string
 	str := make([]string, 2)
-	for _, s := range buf[:block.beginLine] {
+	for _, s := range buf[:block.beginLine+1] {
 		str[0] += s
 	}
-	for _, s := range buf[block.endLine+1:] {
+	for _, s := range buf[block.endLine:] {
 		str[1] += s
 	}
 	return str, nil
@@ -156,9 +156,7 @@ func joinText(readme []string, tree string) (string, error) {
 		return "", fmt.Errorf("joinText(): parameter []string is invalid length\n")
 	}
 	str := readme[0]
-	str += fmt.Sprintf("\n%s\n\n", TREETAG)
 	str += tree
-	str += fmt.Sprintf("\n%s\n\n", TAGCLOSE)
 	str += readme[1]
 	return str, nil
 }
