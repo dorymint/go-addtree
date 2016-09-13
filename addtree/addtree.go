@@ -1,11 +1,14 @@
 // ./tree.txtの内容を./README.mdに追加する
-// `go run addtree.go`
+// README.mdとtree.txtがあるディレクトリで
+// go run addtree.go
 // または、バイナリがあれば
-// `addtree`
+// addtree
 // 追加位置はREADME.md内の以下の部分
 //
 // ```txt:./tree.txt
+//
 // <追加位置>
+//
 // ```
 //
 // README.md内に文字列 ```txt:./tree.txt が見つからなければ書き込まない
@@ -15,38 +18,48 @@ package main
 // 処理の流れ:
 // カレントディレクトリからREADME.mdを掴んでbufferを作る
 // buffer内を1行ずつ確認、TREETAGを探す
-// ```txt:./tree.txt の前とその後の ``` 後でbufferを分割する [2]string
+// ```txt:./tree.txt の前と ``` の後でbufferを分割する [2]string
 // treeBlockがREADME.mdに見つからなければexitする
 // カレントディレクトリからtree.txtを掴んでtreebufferを作る
-// newBuffer := string[0]+TREETAG+treebuffer+TAGCLOSE+string[1]
-// askでREADME.md上書きの確認を取る
+// 新しいbufferを作って文字列を連結する
+// newBuffer := string[0]+treebuffer+string[1]
+// README.md上書きの確認を取る
 // newBufferをREADME.mdに上書きする
 
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 )
 
+func fatalIF(point string, err error) {
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s:%q", point, err)
+		os.Exit(1)
+	}
+}
+
 // default
 const (
+	// filename
 	README = "./README.md"
 	TREE   = "./tree.txt"
 
+	// blocktag
 	TREETAG  = "```txt:./tree.txt"
 	TAGCLOSE = "```"
 )
 
-// README.md内treeBlockの位置
+// README.md内treeBlockの判定
 type treeBlock struct {
 	in, exit bool
 }
 
+// ブロックの存在判定
 func (b *treeBlock) exists() bool { return b.in && b.exit }
 
 // ブロック位置の判定
-func (b *treeBlock) searchAndSet(s string) {
+func (b *treeBlock) search(s string) {
 	b.setIn(s)
 	b.setOut(s)
 }
@@ -68,120 +81,105 @@ func (b *treeBlock) setOut(s string) {
 }
 
 // README.md parse and split
-// TODO:TEST
-func getReadme() ([]string, error) {
-
-	block := new(treeBlock)
-	str := make([]string, 2)
-
-	// file open reamde
-	file, err := os.Open(README)
+func parseReadme(filename string) ([]string, error) {
+	// file
+	file, err := os.Open(filename)
 	if err != nil {
-		return nil, fmt.Errorf("getReadme(): %q\n", err)
+		return nil, fmt.Errorf("parseReadme:%q", err)
 	}
 	defer func() {
-		if err := file.Close(); err != nil {
-			log.Fatal(err)
-		}
+		fatalIF("parseReadme", file.Close())
 	}()
 
-	// Scanner readme
-	fmt.Println("Scanning README.md")
-
+	// Scan and parse
+	block := new(treeBlock)
+	str := make([]string, 2)
 	for sc := bufio.NewScanner(file); sc.Scan(); {
 		if err := sc.Err(); err != nil {
-			return nil, fmt.Errorf("getReadme(): %q\n", err)
+			return nil, fmt.Errorf("paseReadme:%q", err)
 		}
-		tmp := sc.Text()
-
 		if !block.in {
-			str[0] += fmt.Sprintln(tmp)
+			str[0] += fmt.Sprintln(sc.Text())
 		}
-
-		block.searchAndSet(tmp)
-
+		block.search(sc.Text())
 		if block.exit {
-			str[1] += fmt.Sprintln(tmp)
+			str[1] += fmt.Sprintln(sc.Text())
 		}
 	}
 	if !block.exists() {
-		return nil, fmt.Errorf("getReadme(): not find tree block in README.md\n")
+		return nil, fmt.Errorf("parseReadme:do not find tree block in README.md")
 	}
 	return str, nil
 }
 
 // get tree.txt buffer
-// TODO:TEST
-func getTree() (string, error) {
-	var tree string
-	// file open tree
-	file, err := os.Open(TREE)
+func getTree(filename string) (string, error) {
+	// file
+	file, err := os.Open(filename)
 	if err != nil {
-		log.Fatalf("getTree(): %q\n", err)
+		return "", fmt.Errorf("getTree:%q", err)
 	}
 	defer func() {
-		if err := file.Close(); err != nil {
-			log.Fatal(err)
-		}
+		fatalIF("getTree", file.Close())
 	}()
 
-	// scanner tree
-	fmt.Println("Scanning tree.txt")
+	// export
+	var str string
 	for sc := bufio.NewScanner(file); sc.Scan(); {
 		if err := sc.Err(); err != nil {
-			return "", fmt.Errorf("getTree(): %q\n", err)
+			return "", fmt.Errorf("scanTree:%q", err)
 		}
-		tree += fmt.Sprintln(sc.Text())
+		str += fmt.Sprintln(sc.Text())
 	}
-	return tree, nil
+	return str, nil
 }
 
 // join buffers
-// TODO:TEST
 func joinText(readme []string, tree string) (string, error) {
 	if len(readme) != 2 {
-		return "", fmt.Errorf("joinText(): parameter []string is invalid length\n")
+		return "", fmt.Errorf("joinText:parameter []string is invalid length")
 	}
 	return readme[0] + tree + readme[1], nil
 }
 
-// Write Readme
-// TODO:TEST
-func writeReadme(s string) (err error) {
-	file, err := os.Create(README)
+// write
+func writeReadme(filename string, s string) error {
+	// file
+	file, err := os.Create(filename)
 	if err != nil {
-		return fmt.Errorf("writeReadme(): %q\n", err)
+		return fmt.Errorf("writeReadme:%q", err)
 	}
 	defer func() {
-		if err = file.Close(); err != nil {
-			log.Fatal(err)
-		}
+		fatalIF("writeReadme", file.Close())
 	}()
 
-	// write
+	// writer
 	w := bufio.NewWriter(file)
 	n, err := w.WriteString(s)
 	if err != nil {
-		log.Fatalf("writeReadme(): write bytes=%v\nerror:%q\n", n, err)
+		// TODO:backup and recover
+		return fmt.Errorf("writeReadme:write bytes=%v\nerror:%q", n, err)
 	}
 	if err := w.Flush(); err != nil {
-		return fmt.Errorf("writeReadme(): %q\n", err)
+		return fmt.Errorf("writeReadme:%q", err)
 	}
 	return nil
 }
 
 // 上書きの確認
-// TODO:TEST
-func ask(str string) {
+func ask(str string) error {
+	fmt.Println("----------| New README.md |----------")
 	fmt.Println(str)
+	fmt.Println("----------| New README.md |----------")
 	fmt.Println("this string to override at README.md")
 	fmt.Print("[yes:no]? >>")
 
-	L:
+L:
 	for sc, i := bufio.NewScanner(os.Stdin), 0; i < 3 && sc.Scan(); i++ {
+		fatalIF("ask", sc.Err())
 		switch sc.Text() {
 		case "yes":
-			return
+			return nil
 		case "no":
 			break L
 		default:
@@ -189,14 +187,8 @@ func ask(str string) {
 			fmt.Print("[yes:no]? >>")
 		}
 	}
-	fmt.Fprintf(os.Stderr, "\n\ndon't write ...process exit\n")
-	os.Exit(1)
-}
-
-func fatalIF(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
+	fmt.Println()
+	return fmt.Errorf("ask:don't write ...process exit")
 }
 
 func main() {
@@ -210,17 +202,19 @@ func main() {
 		err error
 	)
 
-	buf.readme, err = getReadme()
-	fatalIF(err)
+	buf.readme, err = parseReadme(README)
+	fatalIF("main", err)
 
-	buf.tree, err = getTree()
-	fatalIF(err)
+	buf.tree, err = getTree(TREE)
+	fatalIF("main", err)
 
 	buf.newReadme, err = joinText(buf.readme, buf.tree)
-	fatalIF(err)
+	fatalIF("main", err)
 
-	ask(buf.newReadme)
+	err = ask(buf.newReadme)
+	fatalIF("main", err)
 
-	err = writeReadme(buf.newReadme)
-	fatalIF(err)
+	err = writeReadme(README, buf.newReadme)
+	fatalIF("main", err)
 }
+
