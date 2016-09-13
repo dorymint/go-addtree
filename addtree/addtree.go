@@ -19,7 +19,7 @@ package main
 // treeBlockがREADME.mdに見つからなければexitする
 // カレントディレクトリからtree.txtを掴んでtreebufferを作る
 // newBuffer := string[0]+TREETAG+treebuffer+TAGCLOSE+string[1]
-// askでREADME.md上書きの確認を取る
+// README.md上書きの確認を取る
 // newBufferをREADME.mdに上書きする
 
 import (
@@ -68,7 +68,6 @@ func (b *treeBlock) setOut(s string) {
 }
 
 // README.md parse and split
-// TODO:TEST
 func getReadme() ([]string, error) {
 
 	block := new(treeBlock)
@@ -111,7 +110,6 @@ func getReadme() ([]string, error) {
 }
 
 // get tree.txt buffer
-// TODO:TEST
 func getTree() (string, error) {
 	var tree string
 	// file open tree
@@ -137,7 +135,6 @@ func getTree() (string, error) {
 }
 
 // join buffers
-// TODO:TEST
 func joinText(readme []string, tree string) (string, error) {
 	if len(readme) != 2 {
 		return "", fmt.Errorf("joinText(): parameter []string is invalid length\n")
@@ -146,7 +143,6 @@ func joinText(readme []string, tree string) (string, error) {
 }
 
 // Write Readme
-// TODO:TEST
 func writeReadme(s string) (err error) {
 	file, err := os.Create(README)
 	if err != nil {
@@ -171,7 +167,6 @@ func writeReadme(s string) (err error) {
 }
 
 // 上書きの確認
-// TODO:TEST
 func ask(str string) {
 	fmt.Println(str)
 	fmt.Println("this string to override at README.md")
