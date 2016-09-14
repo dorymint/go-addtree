@@ -1,5 +1,5 @@
 # go-addtree
-go-addtree is adding 'tree.txt' to 'README.md'
+go-addtree is append 'tree.txt' to 'README.md'
 
 ---
 ## Used addtree example
@@ -27,15 +27,15 @@ use `addtree`, includ from tree.txt
 ---
 ## Usage
 ```txt:./tree.txt  
-$ cd <your repository root>
-$ echo '```txt:./tree.txt\n```\n' >> README.md
-$ tree ./ > ./tree.txt
-$ addtree
-$ rm ./tree.txt
+cd <your repository root>
+echo '```txt:./tree.txt\n```\n' >> README.md
+tree ./ > ./tree.txt
+addtree
+rm ./tree.txt
 ```  
 
 1. change current directory to your repository root
-2. adding tree-tag your README.md  
+2. append tree-tag to your README.md  
 tree-tag is this 2 line  
 ```` ```txt:./tree.txt ````  
 ```` ``` ````
