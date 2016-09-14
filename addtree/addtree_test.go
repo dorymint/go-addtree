@@ -1,72 +1,160 @@
 package main
 
 import (
-	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
+	"reflect"
 	"testing"
 )
 
-// TODO:create Tests
+// TODO:Create Tests
+// getTree, joinText, writeReadme, ask
 
-func pwd() (string) {
-	dir, err := os.Getwd()
-	if err != nil {
-		 log.Fatal(fmt.Errorf("pwd error\n"))
-	}
-	fmt.Println(dir)
-	return dir
-}
-
-func cdTestdir() {
-	pwd()
-	if err := os.Chdir("./testdir/"); err != nil {
-		fmt.Fprintf(os.Stderr, "fatal error test stoped!!\n:%q\n", err)
-		os.Exit(2)
-	}
-	pwd()
-}
-
-// TODO:
-func TestGetReadme(t *testing.T) {
-	cdTestdir()
-	makeReadme()
-
-	// TODO:
-	readme := make([]string, 2)
-	var err error
-	if readme, err = getReadme(); err != nil {
-		t.Errorf("test error, %q\n%q\n", readme, err)
-	}
-	t.Logf("pass %q\n%q\n", readme[0], readme[1])
-}
-
-// README.md data define
-const (
-	before   = "### Readme test\n"
-	after    = "after tag"
-	tag      = "\n```txt:./tree.txt\n"
-	tagclose = "\n```\n"
+// directory
+var (
+	TESTDIR = "testdir"
+	PWD     = ""
 )
 
-var ReadmeTests = []struct {
-	in  string // imitates ./README.md // data write to mock
-	out []string
-}{
-	{before + after, nil},
-	{before + tag + after, nil},
-	{before + tag + tagclose + after, []string{before , after} },
-	{before + tagclose + after, nil},
-} // ReadmeTests
+func init() {
+	if err := os.Chdir(TESTDIR); err != nil {
+		log.Fatal(err)
+	}
 
-func makeReadme() {
+	var err error
+	PWD, err = os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 
-	// TODO:
-	for _, x := range ReadmeTests {
-		fmt.Println(x)
-		if x.out != nil {
-			fmt.Printf("x print%s%s\n", x.out[0], x.out[1])
+func tempFile(content string) (string, error) {
+	// use os.TempDir()
+	f, err := ioutil.TempFile("", "readme")
+	if err != nil {
+		return "", err
+	}
+	defer func() {
+		if errclose := f.Close(); errclose != nil {
+			log.Fatal(errclose)
+		}
+	}()
+	_, err = f.WriteString(content)
+	if err != nil {
+		return "", err
+	}
+	name := f.Name()
+	return name, nil
+}
+
+func TestParseReadme(t *testing.T) {
+	// README contents
+	var (
+		before   = "### README"
+		tag      = "```txt:./tree.txt"
+		inline   = "delete target"
+		tagclose = "```"
+		after    = "### after"
+	)
+
+	t.Log("Start Fatal Test")
+	fatalTest := func(filename string) {
+		readme, errFatalTest := parseReadme(filename)
+		if errFatalTest == nil {
+			t.Fatalf("expected return error but nil")
+		} else {
+			t.Logf("Retrun Error:%q", errFatalTest)
+		}
+		var expected []string
+		if !reflect.DeepEqual(readme, expected) {
+			t.Fatalf("expected %q but %q", expected, readme)
 		}
 	}
 
+	fatalList := []string{
+		"",
+		tag,
+		tag + "\n" + tag,
+		tag + tagclose,
+		tagclose,
+
+		before + tag + "\n" + tagclose,
+		tag + "\n" + tagclose + after,
+
+		before + "\n" + tag + "\n" + after,
+		before + "\n" + tagclose + "\n" + tag + "\n" + after,
+	}
+
+	for i, x := range fatalList {
+		filename, err := tempFile(x)
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Logf("Fatal Test %v", i+1)
+		fatalTest(filename)
+	}
+	t.Log("End of Fatal Test")
+
+	t.Log("Start Match Test")
+	matchTest := func(filename string, expected []string) {
+		out, errMatchTest := parseReadme(filename)
+		if errMatchTest != nil {
+			t.Fatal(errMatchTest)
+		}
+		if !reflect.DeepEqual(out, expected) {
+			t.Fatalf("\nexpected:\n%q\nbut:\n%q", expected, out)
+		}
+	}
+
+	matchList := []struct {
+		input    string
+		expected []string
+	}{
+		{input: tag + "\n" + tagclose,
+			expected: []string{
+				tag + "\n", tagclose + "\n"}},
+
+		{input: tag + "\n" + tagclose + "\n",
+			expected: []string{
+				tag + "\n", tagclose + "\n"}},
+
+		{input: tag + "\n" + tagclose + "\n" + "\n",
+			expected: []string{
+				tag + "\n", tagclose + "\n" + "\n"}},
+
+		{input: before + "\n" + tag + "\n" + tagclose + "\n" + after,
+			expected: []string{
+				before + "\n" + tag + "\n", tagclose + "\n" + after + "\n"}},
+
+		{input: tag + "\n" + inline + "\n" + tagclose,
+			expected: []string{
+				tag + "\n", tagclose + "\n"}},
+
+		{input: tag + "\n" + "\n" + tagclose,
+			expected: []string{
+				tag + "\n", tagclose + "\n"}},
+
+		{input: tag + "\n" + tag + "\n" + tagclose,
+			expected: []string{
+				tag + "\n", tagclose + "\n"}},
+
+		{input: tag + "\n" + tagclose + "\n" + tagclose,
+			expected: []string{
+				tag + "\n", tagclose + "\n" + tagclose + "\n"}},
+
+		{input: tag + "\n" + tag + "\n" + tagclose + "\n" + tagclose,
+			expected: []string{
+				tag + "\n", tagclose + "\n" + tagclose + "\n"}},
+	}
+
+	for i, x := range matchList {
+		filename, err := tempFile(x.input)
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Logf("Match Test %v", i+1)
+		matchTest(filename, x.expected)
+	}
+	t.Log("End of Match Test")
 }

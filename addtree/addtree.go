@@ -1,30 +1,12 @@
-// ./tree.txtの内容を./README.mdに追加する
-// README.mdとtree.txtがあるディレクトリで
-// go run addtree.go
-// または、バイナリがあれば
-// addtree
-// 追加位置はREADME.md内の以下の部分
+// addtree is ./tree.txt to ./README.md
 //
 // ```txt:./tree.txt
 //
-// <追加位置>
+// <include tree.txt>
 //
 // ```
 //
-// README.md内に文字列 ```txt:./tree.txt が見つからなければ書き込まない
-// 追加位置にある文字列は上書きされる
 package main
-
-// 処理の流れ:
-// カレントディレクトリからREADME.mdを掴んでbufferを作る
-// buffer内を1行ずつ確認、TREETAGを探す
-// ```txt:./tree.txt の前と ``` の後でbufferを分割する [2]string
-// treeBlockがREADME.mdに見つからなければexitする
-// カレントディレクトリからtree.txtを掴んでtreebufferを作る
-// 新しいbufferを作って文字列を連結する
-// newBuffer := string[0]+treebuffer+string[1]
-// README.md上書きの確認を取る
-// newBufferをREADME.mdに上書きする
 
 import (
 	"bufio"
@@ -75,12 +57,12 @@ func (b *treeBlock) setOut(s string) {
 	if b.exit {
 		return
 	}
-	if s == TAGCLOSE && b.in {
+	if b.in && s == TAGCLOSE {
 		b.exit = true
 	}
 }
 
-// README.md parse and split
+// parse and split
 func parseReadme(filename string) ([]string, error) {
 	// file
 	file, err := os.Open(filename)
