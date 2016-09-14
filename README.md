@@ -26,12 +26,12 @@ use `addtree`, includ from tree.txt
 
 ---
 ## Usage
-```txt:./tree.txt  
-cd <your repository root>
-echo '```txt:./tree.txt\n```\n' >> README.md
-tree ./ > ./tree.txt
-addtree
-rm ./tree.txt
+```sh
+$ cd <your repository root>
+$ echo '```txt:./tree.txt\n```\n' >> README.md
+$ tree ./ > ./tree.txt
+$ addtree
+$ rm ./tree.txt
 ```  
 
 1. change current directory to your repository root
