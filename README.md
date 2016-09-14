@@ -3,7 +3,7 @@ go-addtree is adding 'tree.txt' to 'README.md'
 
 ---
 ## Tree
-use `addtree`. included from tree.txt
+use `addtree` included from tree.txt
 
 
 ```txt:./tree.txt
@@ -35,13 +35,13 @@ $ rm ./tree.txt
 ```  
 
 1. change current directory to your repository root
-2. adding tree tag your README.md  
-tree tag is this 2 line  
+2. adding tree-tag your README.md  
+tree-tag is this 2 line  
 ```` ```txt:./tree.txt ````  
 ```` ``` ````
 
-3. use `tree .` generate tree.txt
-4. after `addtree` "tree.txt" is added between tree tag
+3. use `tree . > ./tree.txt` generate tree.txt
+4. after `addtree`, "tree.txt" is added between tree-tag
 
 ---
 ## Licence
