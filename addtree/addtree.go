@@ -1,4 +1,4 @@
-// addtree is ./tree.txt to ./README.md
+// addtree is append ./tree.txt to ./README.md
 //
 // ```txt:./tree.txt
 //
