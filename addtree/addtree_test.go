@@ -58,7 +58,6 @@ func TestParseReadme(t *testing.T) {
 		after    = "### after"
 	)
 
-	t.Log("Start Fatal Test")
 	fatalTest := func(filename string) {
 		readme, errFatalTest := parseReadme(filename)
 		if errFatalTest == nil {
@@ -86,6 +85,7 @@ func TestParseReadme(t *testing.T) {
 		before + "\n" + tagclose + "\n" + tag + "\n" + after,
 	}
 
+	t.Log("Start Fatal Test")
 	for i, x := range fatalList {
 		filename, err := tempFile(x)
 		if err != nil {
@@ -96,7 +96,6 @@ func TestParseReadme(t *testing.T) {
 	}
 	t.Log("End of Fatal Test")
 
-	t.Log("Start Match Test")
 	matchTest := func(filename string, expected []string) {
 		out, errMatchTest := parseReadme(filename)
 		if errMatchTest != nil {
@@ -148,6 +147,7 @@ func TestParseReadme(t *testing.T) {
 				tag + "\n", tagclose + "\n" + tagclose + "\n"}},
 	}
 
+	t.Log("Start Match Test")
 	for i, x := range matchList {
 		filename, err := tempFile(x.input)
 		if err != nil {
