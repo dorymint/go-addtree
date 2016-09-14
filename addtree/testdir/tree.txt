@@ -1,0 +1,8 @@
+../
+├── addtree.go
+├── addtree_test.go
+└── testdir
+    ├── README.md
+    └── tree.txt
+
+1 directory, 4 files
