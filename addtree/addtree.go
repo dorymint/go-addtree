@@ -43,7 +43,7 @@ func (b *treeBlock) exists() bool { return b.in && b.exit }
 // ブロック位置の判定
 func (b *treeBlock) search(s string) {
 	b.setIn(s)
-	b.setOut(s)
+	b.setExit(s)
 }
 func (b *treeBlock) setIn(s string) {
 	if b.in {
@@ -53,7 +53,7 @@ func (b *treeBlock) setIn(s string) {
 		b.in = true
 	}
 }
-func (b *treeBlock) setOut(s string) {
+func (b *treeBlock) setExit(s string) {
 	if b.exit {
 		return
 	}
