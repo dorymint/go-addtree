@@ -2,8 +2,8 @@
 go-addtree is adding 'tree.txt' to 'README.md'
 
 ---
-## Tree
-use `addtree` included from tree.txt
+## Used addtree example
+use `addtree`, includ from tree.txt
 
 
 ```txt:./tree.txt
