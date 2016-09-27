@@ -8,15 +8,17 @@
 //
 package main
 
+// TODO: Add flags. Switch target tagblock and files
+
 import (
 	"bufio"
 	"fmt"
 	"os"
 )
 
-func fatalIF(point string, err error) {
+func fatalIF(at string, err error) {
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s:%q", point, err)
+		fmt.Fprintf(os.Stderr, "%s:%q", at, err)
 		os.Exit(1)
 	}
 }
@@ -139,7 +141,7 @@ func writeReadme(filename string, s string) error {
 	w := bufio.NewWriter(file)
 	n, err := w.WriteString(s)
 	if err != nil {
-		// TODO:backup and recover
+		// TODO: backup and recover
 		return fmt.Errorf("writeReadme:write bytes=%v\nerror:%q", n, err)
 	}
 	if err := w.Flush(); err != nil {

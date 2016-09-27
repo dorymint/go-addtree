@@ -8,8 +8,6 @@ import (
 	"testing"
 )
 
-// TODO:Create Tests
-// getTree, joinText, writeReadme, ask
 
 // directory
 var (
