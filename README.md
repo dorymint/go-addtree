@@ -22,7 +22,7 @@ use `addtree`, includ from tree.txt
 
 ---
 ## Installation
-`go get github.com/dorymint/go-addtree/addtree`
+`go get github.com/kamisari/go-addtree/addtree`
 
 ---
 ## Usage
