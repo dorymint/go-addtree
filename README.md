@@ -1,19 +1,27 @@
-go-insert
+go-include
 =========
-Insert string after matched word
 
-Usage:
-------
+Include string after matched line
+
+Usage
+-----
+
 ```sh
-goins -match "^hello$" -string "insert word" -file /path/file
+# display to stdout
+goinc -file /path/file -match "Tag:" -string "include word"
+
+# overwrite
+poinc -file /path/file -match "Tag:" -string "include word" -force
 ```
 
-Install:
---------
+Install
+-------
+
 ```sh
-go get github.com/yaeshimo/go-insert/goins
+go get github.com/yaeshimo/go-include/goinc
 ```
 
-License:
---------
+License
+-------
+
 MIT
